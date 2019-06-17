@@ -1,0 +1,117 @@
+假设按照升序排序的数组在预先未知的某个点上进行了旋转。
+( 例如，数组 [0,1,2,4,5,6,7] 可能变为 [4,5,6,7,0,1,2] )。
+搜索一个给定的目标值，如果数组中存在这个目标值，则返回它的索引，否则返回 -1 。
+你可以假设数组中不存在重复的元素。
+你的算法时间复杂度必须是 O(log n) 级别。
+
+示例 1:
+输入: nums = [4,5,6,7,0,1,2], target = 0 输出: 4
+
+示例 2:
+输入: nums = [4,5,6,7,0,1,2], target = 3 输出: -1
+
+
+题解：
+ 1. O(log n) 联想到二分法， 但是我的思路只判断了mid, begin, end的值与target的大小，如下所示；没有判断begin，end与mid的大小，
+ 所以不是很快。
+ 2.所以， 以后要考虑begin，end与mid的关系。
+
+class Solution {
+public:
+    int search(vector<int>& nums, int target) {
+       if (nums.size() ==0) {
+           return -1;
+       } 
+       int begin=0;
+       int end = nums.size()-1;
+       int half = (begin+end)/2;
+       return find(nums, begin, end, half, target);
+    }
+    int find (vector<int>& nums, int begin,
+             int end, int half, int target) {
+        //if (begin != half && end != half && begin<=end) {
+          if (begin<=end) {
+           int result=-1;
+           if (nums[half] >target) {
+               result = find(nums, begin, half-1,(begin+half-1)/2, target);
+               if (result != -1) {
+                   return result;
+               } 
+               if (nums[end] >= target) {
+                   result = find(nums, half+1, end, (half+end+1)/2, target);
+                   if (result != -1) {
+                       return result;
+                   } 
+               }
+           } else if (nums[half] < target) {
+             result = find(nums, half+1, end, (half+end+1)/2, target);
+             if (result != -1) {
+                   return result;
+             }
+             
+             if (nums[begin] <= target) {
+               result = find(nums, begin, half-1,(begin+half-1)/2, target);
+               if (result != -1) {
+                   return result;
+               } 
+             }
+           } else {
+             return half;
+           }
+       }
+      return -1;
+    }
+};
+
+leetcode 题解：
+int divisionsearch(vector<int>& nums, int target, int l, int r)
+{
+    if(l == r)
+    {
+        if(nums[l] == target){return l;}
+        else{return -1;}
+    }
+    
+    int mid = (l + r) / 2;
+    
+    if(nums[mid] == target){return mid;}
+    
+    else if(nums[mid] > target)
+    {
+        if(nums[l] <= nums[mid])
+        {
+           if(nums[l] <= target)
+           {
+               return divisionsearch(nums, target, l, mid);
+           }
+           else
+           {
+               return divisionsearch(nums, target, mid + 1, r);
+           }
+        }
+        else
+        {
+            return divisionsearch(nums, target, l, mid);
+        }
+        
+    }
+    else
+    {
+        if(nums[mid] <= nums[r])
+        {
+            if(target <= nums[r])
+            {
+               return divisionsearch(nums, target, mid + 1, r);
+            }
+            else
+            {
+                return divisionsearch(nums, target, l, mid);
+            }
+        }
+        
+        else
+        {
+            return divisionsearch(nums, target, mid + 1, r);
+        }
+    }
+}
